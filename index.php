@@ -2,10 +2,9 @@
 include "php/conexao.php";
 
 $produtos = listar($conn,'produtos');
-$categorias = listar($conn,'categorias');
-$usuarios = listar($conn,'usuarios');
+$categorias = listar($conn,'categoria');
 
-deletar($conn,'categorias',1);
+// deletar($conn,'categoria',1);
 
 function listar($conn,$tabela){ 
     $sql = "SELECT * FROM $tabela";   
@@ -35,14 +34,22 @@ function deletar($conn,$tabela,$id){
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <div class="container">
     <h1>Listagem de produtos</h1>
-
+    <div class="grid">
+    <?php
+     foreach($produtos as $produto){
+    ?>
     <div class="card">
-        <img src="img/produto_001.jpg" alt="Imagem do produto">
-        <h2>Camiseta Básica</h2>
-        <h4>Camisetas</h4>
-        <h3>R$ 29.90</h3>
+        <img src="img/<?php echo $produto['imagem']?>" alt="Imagem do produto">
+        <h2><?php echo $produto['nome']?></h2>
+        <h4><?php echo $produto['categoria']?></h4>
+        <h3><?php echo $produto['preco']?></h3>
     </div>   
-    
+    <?php
+     }
+    ?>
+    </div>
+</div>
 </body>
 </html>
