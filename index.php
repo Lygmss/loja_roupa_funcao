@@ -1,25 +1,10 @@
 <?php
 include "php/conexao.php";
-
+include "funcao.php";
 $produtos = listar($conn,'produtos');
 $categorias = listar($conn,'categoria');
 
 // deletar($conn,'categoria',1);
-
-function listar($conn,$tabela){ 
-    $sql = "SELECT * FROM $tabela";   
-    $stmt = $conn->prepare($sql);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);        
-}
-
-function deletar($conn,$tabela,$id){ 
-    $sql = "DELETE FROM $tabela WHERE id=:id";   
-    $stmt = $conn->prepare($sql);
-    $stmt->bindParam(':id',$id);
-    $stmt->execute();     
-}
-
 
 ?>
 
@@ -45,6 +30,7 @@ function deletar($conn,$tabela,$id){
         <h2><?php echo $produto['nome']?></h2>
         <h4><?php echo $produto['categoria']?></h4>
         <h3><?php echo $produto['preco']?></h3>
+        <a href="produto.php?id=<?php echo $produto['id']?>" class="btn">Ver mais</a>
     </div>   
     <?php
      }
