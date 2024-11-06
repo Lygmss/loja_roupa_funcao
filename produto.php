@@ -22,7 +22,7 @@ $produto = listarId($conn, 'produtos', $id);
         <h2><?php echo $produto['nome']?></h2>
         <p><?php echo $produto['preco']?></p>
         <p><?php echo $produto['descricao']?></p>
-        <button type="submit">Comprar</button>
+        <a href="carrinho.php?id=<?php echo $produto['id']?>"><button class="btn">Adicionar no carrinho</button></a>
         <button type="button">Voltar</button>
  
     
