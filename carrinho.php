@@ -1,10 +1,11 @@
 <?php
 include "php/conexao.php";
+include "funcoes_carrinho.php";
 // começa a sessao
 session_start();
 // captura o id da sessão
 $id_sessao = session_id();
-
+$valor_frete= '20.00';
 // caso um produto esteja sendo add no carrinho, será enviado via get o id, aí a funcao addcarrinho é executada
 // verifica se a pagina esta recebendo o id via get
 if(isset($_GET['id'])){
@@ -12,42 +13,14 @@ if(isset($_GET['id'])){
     $id_produto = $_GET['id'];
     addCarrinho($conn,$id_sessao,$id_produto,1);
 }
-if(isset($_POST['deletar'])){
-    $id_produto = $_POST['deletar'];
-    deletar($conn,$id_sessao,$id_produto);
+if(isset($_POST['id_carrinho'])){
+    $id_carrinho = $_POST['id_carrinho'];
+    deletar($conn,$id_carrinho);
+}
+if(isset($_POST['limparCarrinho'])){
+  deletarCarrinho($conn,$id_sessao);
 }
 $produtos= listarCarrinho($conn,$id_sessao);
-
-function addCarrinho($conn,$id_sessao,$id_produto,$quantidade){
-    $sql= "INSERT INTO carrinhos (id_session,id_produto,qtde) VALUES (:id_sessao,:id_produto,:quantidade)";
-    $stmt= $conn->prepare($sql);
-    $stmt->bindParam(':id_sessao',$id_sessao);
-    $stmt->bindParam(':id_produto',$id_produto);
-    $stmt->bindParam(':quantidade',$quantidade);
-    $stmt->execute();
-}
-
-
-function listarCarrinho($conn,$id_sessao){ 
-    $sql = "SELECT produtos.*,
-                    carrinhos.qtde
-            FROM    carrinhos
-            INNER JOIN produtos ON produtos.id = carrinhos.id_produto
-            WHERE id_session =:id_sessao";   
-    $stmt = $conn->prepare($sql);
-    $stmt->bindParam(':id_sessao',$id_sessao);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);        
-}
-
-
-function deletar($conn,$id_sessao,$id_produto){ 
-    $sql = "DELETE FROM carrinhos WHERE id_session=:id_sessao AND id_produto=:id_produto";   
-    $stmt = $conn->prepare($sql);
-    $stmt->bindParam(':id_sessao',$id_sessao);
-    $stmt->bindParam(':id_produto',$id_produto);
-    $stmt->execute();     
-}
 
 ?>
 
@@ -116,8 +89,8 @@ function deletar($conn,$id_sessao,$id_produto){
             <div class="row">
 <!-- !!!! -->
               <div class="col-lg-7">
-                <h5 class="mb-3"><a href="produto.php?id=<?php echo $produto['id']?>" class="text-body"><i
-                      class="fas fa-long-arrow-alt-left me-2"></i>Continuar comprando</a></h5>
+                <h5 class="mb-3"><a href="index.php" class="text-body">
+                <i  class="fas fa-long-arrow-alt-left me-2"></i>Continuar comprando</a></h5>
                 <hr>
 
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -132,7 +105,13 @@ function deletar($conn,$id_sessao,$id_produto){
                 </div>
 
                 <?php
-                foreach($produtos as $produto){
+                // cria variavel que ira armazenar o valor dos produtos
+                $valor_produtos= 0;
+
+                foreach($produtos as $produto)
+                {
+                  // soma os valores
+                $valor_produtos += $produto['preco'];
                 ?>
                 <div class="card mb-3">
                   <div class="card-body">
@@ -156,16 +135,25 @@ function deletar($conn,$id_sessao,$id_produto){
                           <h5 class="mb-0"><?php echo $produto['preco']?></h5>
                         </div>
                         <a href="#!" style="color: #cecece;"><i class="fas fa-trash-alt"></i></a>
+                        
                         <form action="carrinho.php" method="post">
-                        <button type="submit" class="delete" name="deletar" value="<?php echo $produto['id']?>">Deletar</button>
+                          <button type="submit" class="btn btn-warning" name="id_carrinho" value="<?php echo $produto['id_carrinho']?>">Deletar</button>
                         </form>
+
+                        
+                        
                       </div>
+                      
                     </div>
+                    
                   </div>
                 </div>
                 <?php
                 }
                 ?>
+                <form action="carrinho.php" method="post">
+                  <button type="submit" class="btn btn-danger" name="limparCarrinho">Deletar Carrinho</button>
+                </form>
 
               </div>
               <div class="col-lg-5">
@@ -183,18 +171,18 @@ function deletar($conn,$id_sessao,$id_produto){
                     <hr class="my-4">
 
                     <div class="d-flex justify-content-between">
-                      <p class="mb-2">Subtotal</p>
-                      <p class="mb-2">$4798.00</p>
+                      <p class="mb-2">Total Produtos</p>
+                      <p class="mb-2">R$ <?php echo $valor_produtos?></p>
                     </div>
 
                     <div class="d-flex justify-content-between">
                       <p class="mb-2">Frete</p>
-                      <p class="mb-2">$20.00</p>
+                      <p class="mb-2">R$ <?php echo $valor_frete?></p>
                     </div>
 
                     <div class="d-flex justify-content-between mb-4">
-                      <p class="mb-2">Total</p>
-                      <p class="mb-2">$4818.00</p>
+                      <p class="mb-2">Total Geral (Produto + Frete)</p>
+                      <p class="mb-2">R$ <?php echo $valor_produtos + $valor_frete?></p>
                     </div>
 
                     <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-info btn-block btn-lg">

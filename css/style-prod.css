@@ -100,9 +100,9 @@ button[type="submit"]:hover {
 }
 
 button[type="button"] {
-    background-color: #666;
+    background-color: #1E90FF;;
 }
 
 button[type="button"]:hover {
-    background-color: #555;
+    background-color:  #104E8B;
 }
