@@ -18,7 +18,7 @@
     <main>
         <section class="login-form">
             <h2>Login</h2>
-            <form action="index.php" method="POST">
+            <form action="index.php" method="post">
                 <div class="form-group">
                     <label for="nome">Nome:</label>
                     <input type="name" id="nome" name="nome" required>
