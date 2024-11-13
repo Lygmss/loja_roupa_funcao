@@ -1,8 +1,38 @@
 <?php
     include 'php/conexao.php';
 
+    // Verifica se os dados foram enviados pelo formulário
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $email = $_POST['email'];
+    $senha = $_POST['senha'];
 
-    
+    // Verifica se os campos estão preenchidos
+    if (empty($email) || empty($senha)) {
+        echo "Por favor, preencha todos os campos.";
+        exit;
+    }
+
+    // Consulta o banco de dados para verificar o e-mail
+    $sql = "SELECT id, nome, senha FROM usuarios WHERE email = :email";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':email', $email);
+    $stmt->execute();
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Verifica se o usuário existe e se a senha está correta
+    if ($usuario && password_verify($senha, $usuario['senha'])) {
+        // Salva os dados do usuário na sessão
+        $_SESSION['usuario_id'] = $usuario['id'];
+        $_SESSION['usuario_nome'] = $usuario['nome'];
+        
+        // Redireciona para a área do usuário
+        header("Location: cadastroRealiz.php");
+        exit;
+    } else {
+        echo "E-mail ou senha incorretos.";
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -18,7 +48,7 @@
         <main>
             <section class="login-form">
                 <h2>Login</h2>
-                <form action="index.php" method="POST">
+                <form action="sign-in.php" method="POST">
                     <div class="form-group">
                         <label for="email">E-mail:</label>
                         <input type="email" id="email" name="email" required>
@@ -26,7 +56,7 @@
 
                     <div class="form-group">
                         <label for="password">Senha:</label>
-                        <input type="password" id="password" name="password" required>
+                        <input type="password" id="password" name="senha" required>
                     </div>
 
                     <button type="submit" class="login-button">Entrar</button>
